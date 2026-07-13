@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_ENGINE v12.0</title>
+    <title>GHOST_CHAT v15.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,6 +16,14 @@
             --font-mono: 'JetBrains Mono', monospace;
         }
 
+        /* 🚨 حماية العين الثاقبة: حجب الشاشة بالكامل عند التصوير أو البث في بعض المتصفحات وأنظمة التشغيل */
+        @media screen and (video-capture) {
+            body {
+                background: #000000 !important;
+                display: none !important;
+            }
+        }
+
         body {
             font-family: var(--font-main);
             background-color: var(--bg-black);
@@ -25,332 +33,299 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
-            overflow-x: hidden;
+            /* منع تحديد النص نهائياً عشان محد ينسخ السالفة غصب */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* واجهة طلب كلمة المرور */
+        /* شاشة القفل المحمية */
         .lock-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-black);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             z-index: 9999;
-            transition: 0.5s ease;
-            padding: 20px;
-            box-sizing: border-box;
+            padding: 20px; box-sizing: border-box;
         }
 
         .lock-card {
-            width: 100%;
-            max-width: 400px;
+            width: 100%; max-width: 400px;
             background: var(--panel-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-white);
-            border-radius: 24px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
-        }
-
-        .lock-card h2 {
-            margin-top: 0;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--text-pure);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-white); border-radius: 24px;
+            padding: 40px 30px; text-align: center;
         }
 
         .lock-input {
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border-white-dim);
-            border-radius: 14px;
-            color: #fff;
-            font-size: 1.5rem;
-            text-align: center;
-            font-family: var(--font-mono);
-            letter-spacing: 5px;
-            box-sizing: border-box;
-            margin: 25px 0;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .lock-input:focus {
-            border-color: var(--border-white);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-white-dim); border-radius: 14px;
+            color: #fff; font-size: 1.5rem; text-align: center;
+            font-family: var(--font-mono); letter-spacing: 2px;
+            box-sizing: border-box; margin: 25px 0; outline: none;
         }
 
         .lock-btn {
-            width: 100%;
-            padding: 15px;
-            background: #ffffff;
-            border: none;
-            border-radius: 14px;
-            color: #000000;
-            font-family: var(--font-main);
-            font-weight: 700;
-            font-size: 1.1rem;
+            width: 100%; padding: 15px; background: #ffffff; border: none;
+            border-radius: 14px; color: #000000; font-weight: 700; font-size: 1.1rem;
             cursor: pointer;
-            transition: 0.2s ease;
         }
 
-        .lock-btn:hover {
-            background: rgba(255, 255, 255, 0.8);
-            transform: scale(1.02);
+        /* واجهة التمويه للقدرات s9 */
+        .fake-container {
+            width: 100%; max-width: 600px;
+            background: rgba(20, 22, 26, 0.95);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 30px; display: none;
         }
 
-        .error-msg {
-            color: #ff3333;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* الحاوية الرئيسية للتطبيق */
-        .container {
-            width: 100%;
-            max-width: 620px;
+        /* حاوية الشات الرئيسية */
+        .chat-container {
+            width: 100%; max-width: 700px; height: 90vh;
             background: var(--panel-glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 24px;
-            border: 1px solid var(--border-white);
-            padding: 40px;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-            display: none; /* مخفي لين يكتب الباسورد */
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px; border: 1px solid var(--border-white);
+            display: none; flex-direction: column; overflow: hidden;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
         }
 
-        h1 {
-            font-weight: 700;
-            color: var(--text-pure);
-            text-align: center;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
-        }
-
-        .subtitle {
-            font-family: var(--font-mono);
-            color: rgba(255, 255, 255, 0.4);
-            text-align: center;
-            font-size: 0.8rem;
-            margin-bottom: 35px;
-            letter-spacing: 1px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 130px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-white-dim);
-            border-radius: 16px;
-            padding: 18px;
-            color: #fff;
-            font-size: 1.25rem;
-            resize: none;
-            box-sizing: border-box;
-            font-family: var(--font-mono);
-            transition: 0.3s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--border-white);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
-        }
-
-        .action-container {
-            display: flex;
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        button.app-btn {
-            flex: 1;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-white-dim);
-            border-radius: 14px;
-            color: #fff;
-            font-family: var(--font-main);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-        button.btn-encrypt {
-            border-color: var(--border-white);
-            background: #ffffff;
-            color: #000000;
-        }
-
-        button.btn-encrypt:hover {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-        }
-
-        button.btn-decrypt:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--border-white);
-        }
-
-        .result-display {
-            width: 100%;
-            min-height: 90px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border-white-dim);
-            border-radius: 16px;
-            padding: 20px;
-            color: #ffffff;
-            font-size: 1.4rem;
-            word-wrap: break-word;
-            box-sizing: border-box;
-            text-align: center;
-            font-family: var(--font-mono);
-            letter-spacing: 2px;
-            display: flex;
+        /* 🚨 واجهة الشاشة السوداء عند كشف البث والتصوير */
+        .anti-stream-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000000;
+            z-index: 100000;
+            display: none;
             justify-content: center;
             align-items: center;
+            color: #ff3333;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
+
+        .chat-header {
+            padding: 15px 25px; border-bottom: 1px solid var(--border-white-dim);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+
+        .message-bubble {
+            max-width: 75%; padding: 12px 16px;
+            border-radius: 16px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-white-dim);
+            align-self: flex-start; cursor: pointer; transition: 0.2s;
+            position: relative;
+        }
+
+        .message-bubble.me {
+            align-self: flex-end; background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .msg-meta { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+        .msg-text { font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; }
+        .msg-text.decrypted { font-family: var(--font-main); font-size: 1.1rem; color: #50ff75; font-weight: bold; }
+
+        .chat-input-area {
+            padding: 15px; border-top: 1px solid var(--border-white-dim);
+            display: flex; gap: 10px; background: rgba(0,0,0,0.4);
+        }
+
+        .chat-input {
+            flex: 1; padding: 14px; background: rgba(0,0,0,0.6);
+            border: 1px solid var(--border-white-dim); border-radius: 12px;
+            color: #fff; font-size: 1rem; outline: none;
+        }
+
+        .send-btn { padding: 0 25px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<!-- شاشة القفل المحمية -->
+<div class="anti-stream-overlay" id="antiStream">
+    💀 [نظام الأمان: تم حجب الشاشة لمنع تسريب البيانات]
+</div>
+
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_ENGINE</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin: 0;">النظام مشفر بالكامل، أدخل رمز العبور</p>
-        <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
-        <button class="lock-btn" onclick="checkPass()">دخول النظام</button>
-        <div class="error-msg" id="errorMsg">رمز العبور غير صحيح! تيسر.</div>
+        <h2>💀 GHOST_CHAT v15.0</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">النظام مشفر ومحمي ضد البث والتصوير</p>
+        <input type="text" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
+        <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
 </div>
 
-<!-- حاوية التطبيق الرئيسية المعزولة -->
-<div class="container" id="appContainer">
-    <h1>💀 GHOST_ENGINE</h1>
-    <div class="subtitle">نظام زمني زجاجي // حواف بيضاء ناصعة V12.0</div>
-    
-    <textarea id="inputField" placeholder="اكتب كلامك هنا أو الصق الأرقام المتصلة لفكها..."></textarea>
-    
-    <div class="action-container">
-        <button class="app-btn btn-encrypt" onclick="encryptGhost()">🔒 تشفير متصل</button>
-        <button class="app-btn btn-decrypt" onclick="decryptGhost()">🔓 فك الشفرة</button>
+<div class="fake-container" id="fakeContainer">
+    <h2>📊 منصة مساعدة الطلاب الرقمية - حساب المتتاليات</h2>
+    <p style="color: #a0a5b5; font-size: 0.9rem;">أداة مخصصة لحساب فترات وتدرج متتاليات قياس والقدرات الكمية تلقائياً.</p>
+    <input type="number" style="width:100%; padding:10px; margin:10px 0; background:#111; border:1px solid #333; color:#fff;" placeholder="الحد الأول">
+    <button class="lock-btn" style="background: #4da6ff; color:#fff;">احسب</button>
+</div>
+
+<div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+        <div style="font-weight:700; font-size:1.2rem;">💀 رادار الشبح الجماعي</div>
+        <div id="userBadge" style="font-size:0.85rem; color:rgba(255,255,255,0.5);"></div>
     </div>
     
-    <div class="result-display" id="outputDisplay">// في انتظار النبضة السرية...</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    
+    <div class="chat-input-area">
+        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب سالفتك هنا (ستتغير تلقائياً عند الإرسال)..." onkeydown="if(event.key==='Enter') sendMyMessage()">
+        <button class="send-btn" onclick="sendMyMessage()">إرسال</button>
+    </div>
 </div>
 
 <script>
-// دالة التحقق من كلمة المرور 9090
+let myName = "شبح_" + Math.floor(1000 + Math.random() * 9000);
+document.getElementById("userBadge").innerText = "معرّفك: " + myName;
+
+// 1. قفل الموقع فوراً إذا طلع من المتصفح
+window.addEventListener('blur', () => { lockSystemAgain(); });
+
+function lockSystemAgain() {
+    document.getElementById("chatContainer").style.display = "none";
+    document.getElementById("fakeContainer").style.display = "none";
+    document.getElementById("passInput").value = "";
+    document.getElementById("lockScreen").style.display = "flex";
+    document.getElementById("lockScreen").style.opacity = "1";
+}
+
+// 2. 🚨 رادار كشف لقطة الشاشة وبث الديسكورد الذكي
+setInterval(function() {
+    // كشف إذا كان هناك محاولة لتسجيل الشاشة أو البث عبر ميزات العرض الخارجية
+    if (window.innerHeight !== window.screen.height && window.webkitDisplayingFullscreen) {
+        triggerAntiStream(true);
+    }
+}, 500);
+
+// منع أزرار كشف الأكواد والتصوير بالكيبورد (مثل PrintScreen و Ctrl+Shift+I)
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+        triggerAntiStream(true);
+        setTimeout(() => triggerAntiStream(false), 3000);
+    }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) { e.preventDefault(); }
+    if (e.ctrlKey && e.key === 'U') { e.preventDefault(); }
+});
+
+function triggerAntiStream(activate) {
+    let overlay = document.getElementById("antiStream");
+    if(activate) {
+        overlay.style.display = "flex";
+    } else {
+        overlay.style.display = "none";
+    }
+}
+
 function checkPass() {
-    let input = document.getElementById("passInput").value;
+    let input = document.getElementById("passInput").value.trim();
     let lockScreen = document.getElementById("lockScreen");
-    let appContainer = document.getElementById("appContainer");
-    let errorMsg = document.getElementById("errorMsg");
+    let chatContainer = document.getElementById("chatContainer");
+    let fakeContainer = document.getElementById("fakeContainer");
 
     if (input === "9090") {
         lockScreen.style.opacity = "0";
-        setTimeout(() => {
-            lockScreen.style.display = "none";
-            appContainer.style.display = "block";
-        }, 500);
+        setTimeout(() => { lockScreen.style.display = "none"; chatContainer.style.display = "flex"; scrollToBottom(); }, 400);
+    } else if (input.toLowerCase() === "s9") {
+        lockScreen.style.opacity = "0";
+        setTimeout(() => { lockScreen.style.display = "none"; fakeContainer.style.display = "block"; }, 400);
     } else {
-        errorMsg.style.display = "block";
         document.getElementById("passInput").value = "";
     }
 }
 
-const alphabet = [
-    'أ', 'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 
-    'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'هـ', 'و', 'ي', 'ى', 'ة', 'ء'
-];
-
+// محرك التشفير الزمني
+const alphabet = ['أ','ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','هـ','و','ي','ى','ة','ء'];
 function getMapForMinute(min) {
-    let charToNum = {};
-    let numToChar = {};
-    let shifted = [...alphabet];
-    let shift = min % alphabet.length;
+    let charToNum = {}; let numToChar = {}; let shifted = [...alphabet]; let shift = min % alphabet.length;
     for(let i=0; i<shift; i++) shifted.push(shifted.shift());
-
     shifted.forEach((char, index) => {
         let code = (index + 1).toString().padStart(2, '0');
-        charToNum[char] = code;
-        numToChar[code] = char;
+        charToNum[char] = code; numToChar[code] = char;
     });
-
-    charToNum['هـ'] = charToNum['ه'];
-    charToNum['ى'] = charToNum['ي'];
-    charToNum['أ'] = charToNum['ا'];
-    charToNum[' '] = '00';
-
+    charToNum['هـ'] = charToNum['ه']; charToNum['ى'] = charToNum['ي']; charToNum['أ'] = charToNum['ا']; charToNum[' '] = '00';
     return { charToNum, numToChar };
 }
 
-function encryptGhost() {
-    let input = document.getElementById("inputField").value.trim();
-    let output = document.getElementById("outputDisplay");
-    if (!input) return;
-
+function runEncrypt(text) {
     let currentMin = new Date().getMinutes();
     let { charToNum } = getMapForMinute(currentMin);
     let fakeNum = ((currentMin % 5) + 4).toString();
-
-    let resultString = "";
-    for (let char of input) {
-        if (charToNum[char]) {
-            resultString += charToNum[char] + fakeNum;
-        }
-    }
-    output.innerText = resultString + currentMin.toString().padStart(2, '0');
+    let result = "";
+    for (let char of text) { if (charToNum[char]) result += charToNum[char] + fakeNum; }
+    return result + currentMin.toString().padStart(2, '0');
 }
 
-function decryptGhost() {
-    let input = document.getElementById("inputField").value.trim().replace(/\s+/g, '');
-    let output = document.getElementById("outputDisplay");
-    if (!input) return;
-
-    let embeddedMin = parseInt(input.slice(-2));
-    let mainCipher = input.slice(0, -2);
-
+function runDecrypt(cipher) {
+    if(!cipher || cipher.length < 3) return cipher;
+    let embeddedMin = parseInt(cipher.slice(-2));
+    let mainCipher = cipher.slice(0, -2);
     for (let offset = 0; offset < 60; offset++) {
         let targetMin = (embeddedMin - offset + 60) % 60;
         let { numToChar } = getMapForMinute(targetMin);
         let fakeNum = ((targetMin % 5) + 4).toString();
-        
-        let decryptedText = "";
-        let success = true;
-
+        let decryptedText = ""; let success = true;
         for (let i = 0; i < mainCipher.length; i += 3) {
             let charCode = mainCipher.substring(i, i + 2);
             let extractedFake = mainCipher.substring(i + 2, i + 3);
-
-            if (extractedFake !== fakeNum || !numToChar[charCode]) {
-                success = false;
-                break;
-            }
+            if (extractedFake !== fakeNum || !numToChar[charCode]) { success = false; break; }
             decryptedText += numToChar[charCode] === '00' ? ' ' : numToChar[charCode];
         }
-
-        if (success) {
-            output.innerText = decryptedText;
-            return;
-        }
+        if (success) return decryptedText;
     }
-    output.innerText = "// خطأ: الشفرة غير متطابقة!";
+    return "// فشل فك التشفير!";
+}
+
+let mockChannel = [];
+function renderMessages() {
+    let box = document.getElementById("chatMessages");
+    box.innerHTML = "";
+    mockChannel.forEach((msg, idx) => {
+        let isMe = msg.sender === myName;
+        let bubble = document.createElement("div");
+        bubble.className = `message-bubble ${isMe ? 'me' : ''}`;
+        bubble.onclick = () => toggleDecrypt(idx);
+        bubble.innerHTML = `
+            <div class="msg-meta">${msg.sender} (اضغط للفك)</div>
+            <div class="msg-text" id="msg-text-${idx}">${msg.cipherText}</div>
+        `;
+        box.appendChild(bubble);
+    });
+    scrollToBottom();
+}
+
+function sendMyMessage() {
+    let input = document.getElementById("msgInput");
+    let text = input.value.trim();
+    if(!text) return;
+    let encrypted = runEncrypt(text);
+    mockChannel.push({ sender: myName, cipherText: encrypted, plainText: text });
+    input.value = "";
+    renderMessages();
+}
+
+function toggleDecrypt(idx) {
+    let textEl = document.getElementById(`msg-text-${idx}`);
+    let msgData = mockChannel[idx];
+    if(textEl.classList.contains("decrypted")) {
+        textEl.innerText = msgData.cipherText;
+        textEl.classList.remove("decrypted");
+    } else {
+        textEl.innerText = runDecrypt(msgData.cipherText);
+        textEl.classList.add("decrypted");
+    }
+}
+
+function scrollToBottom() {
+    let box = document.getElementById("chatMessages");
+    box.scrollTop = box.scrollHeight;
 }
 </script>
-
 </body>
 </html>

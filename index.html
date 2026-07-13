@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v15.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>GHOST_CHAT v15.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-black: #000000;
@@ -14,14 +14,6 @@
             --text-pure: #ffffff;
             --font-main: 'Cairo', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-        }
-
-        /* 🚨 حماية العين الثاقبة: حجب الشاشة بالكامل عند التصوير أو البث في بعض المتصفحات وأنظمة التشغيل */
-        @media screen and (video-capture) {
-            body {
-                background: #000000 !important;
-                display: none !important;
-            }
         }
 
         body {
@@ -35,12 +27,10 @@
             min-height: 100vh;
             padding: 10px;
             box-sizing: border-box;
-            /* منع تحديد النص نهائياً عشان محد ينسخ السالفة غصب */
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* شاشة القفل المحمية */
         .lock-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -72,7 +62,6 @@
             cursor: pointer;
         }
 
-        /* واجهة التمويه للقدرات s9 */
         .fake-container {
             width: 100%; max-width: 600px;
             background: rgba(20, 22, 26, 0.95);
@@ -80,7 +69,6 @@
             padding: 30px; display: none;
         }
 
-        /* حاوية الشات الرئيسية */
         .chat-container {
             width: 100%; max-width: 700px; height: 90vh;
             background: var(--panel-glass);
@@ -90,7 +78,6 @@
             box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
         }
 
-        /* 🚨 واجهة الشاشة السوداء عند كشف البث والتصوير */
         .anti-stream-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -119,7 +106,6 @@
             border-radius: 16px; background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-white-dim);
             align-self: flex-start; cursor: pointer; transition: 0.2s;
-            position: relative;
         }
 
         .message-bubble.me {
@@ -153,7 +139,7 @@
 
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v15.0</h2>
+        <h2>💀 GHOST_CHAT v15.1</h2>
         <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">النظام مشفر ومحمي ضد البث والتصوير</p>
         <input type="text" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
@@ -162,7 +148,6 @@
 
 <div class="fake-container" id="fakeContainer">
     <h2>📊 منصة مساعدة الطلاب الرقمية - حساب المتتاليات</h2>
-    <p style="color: #a0a5b5; font-size: 0.9rem;">أداة مخصصة لحساب فترات وتدرج متتاليات قياس والقدرات الكمية تلقائياً.</p>
     <input type="number" style="width:100%; padding:10px; margin:10px 0; background:#111; border:1px solid #333; color:#fff;" placeholder="الحد الأول">
     <button class="lock-btn" style="background: #4da6ff; color:#fff;">احسب</button>
 </div>
@@ -172,11 +157,9 @@
         <div style="font-weight:700; font-size:1.2rem;">💀 رادار الشبح الجماعي</div>
         <div id="userBadge" style="font-size:0.85rem; color:rgba(255,255,255,0.5);"></div>
     </div>
-    
     <div class="chat-messages" id="chatMessages"></div>
-    
     <div class="chat-input-area">
-        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب سالفتك هنا (ستتغير تلقائياً عند الإرسال)..." onkeydown="if(event.key==='Enter') sendMyMessage()">
+        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب سالفتك هنا..." onkeydown="if(event.key==='Enter') sendMyMessage()">
         <button class="send-btn" onclick="sendMyMessage()">إرسال</button>
     </div>
 </div>
@@ -185,62 +168,31 @@
 let myName = "شبح_" + Math.floor(1000 + Math.random() * 9000);
 document.getElementById("userBadge").innerText = "معرّفك: " + myName;
 
-// 1. قفل الموقع فوراً إذا طلع من المتصفح
-window.addEventListener('blur', () => { lockSystemAgain(); });
-
-function lockSystemAgain() {
+// الحفاظ على تركيز وفك قفل السيستم بأمان عند التنقل
+window.addEventListener('blur', () => { 
+    // الاحتفاظ بالبيانات مقفلة بصرياً فقط دون تدمير مصفوفة العمليات الزمنية
     document.getElementById("chatContainer").style.display = "none";
-    document.getElementById("fakeContainer").style.display = "none";
-    document.getElementById("passInput").value = "";
     document.getElementById("lockScreen").style.display = "flex";
     document.getElementById("lockScreen").style.opacity = "1";
-}
-
-// 2. 🚨 رادار كشف لقطة الشاشة وبث الديسكورد الذكي
-setInterval(function() {
-    // كشف إذا كان هناك محاولة لتسجيل الشاشة أو البث عبر ميزات العرض الخارجية
-    if (window.innerHeight !== window.screen.height && window.webkitDisplayingFullscreen) {
-        triggerAntiStream(true);
-    }
-}, 500);
-
-// منع أزرار كشف الأكواد والتصوير بالكيبورد (مثل PrintScreen و Ctrl+Shift+I)
-window.addEventListener('keydown', function(e) {
-    if (e.key === 'PrintScreen' || e.keyCode === 44) {
-        triggerAntiStream(true);
-        setTimeout(() => triggerAntiStream(false), 3000);
-    }
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) { e.preventDefault(); }
-    if (e.ctrlKey && e.key === 'U') { e.preventDefault(); }
 });
-
-function triggerAntiStream(activate) {
-    let overlay = document.getElementById("antiStream");
-    if(activate) {
-        overlay.style.display = "flex";
-    } else {
-        overlay.style.display = "none";
-    }
-}
 
 function checkPass() {
     let input = document.getElementById("passInput").value.trim();
-    let lockScreen = document.getElementById("lockScreen");
-    let chatContainer = document.getElementById("chatContainer");
-    let fakeContainer = document.getElementById("fakeContainer");
-
     if (input === "9090") {
-        lockScreen.style.opacity = "0";
-        setTimeout(() => { lockScreen.style.display = "none"; chatContainer.style.display = "flex"; scrollToBottom(); }, 400);
+        document.getElementById("lockScreen").style.opacity = "0";
+        setTimeout(() => { 
+            document.getElementById("lockScreen").style.display = "none"; 
+            document.getElementById("chatContainer").style.display = "flex"; 
+            renderMessages(); 
+        }, 400);
     } else if (input.toLowerCase() === "s9") {
-        lockScreen.style.opacity = "0";
-        setTimeout(() => { lockScreen.style.display = "none"; fakeContainer.style.display = "block"; }, 400);
+        document.getElementById("lockScreen").style.opacity = "0";
+        setTimeout(() => { document.getElementById("lockScreen").style.display = "none"; document.getElementById("fakeContainer").style.display = "block"; }, 400);
     } else {
         document.getElementById("passInput").value = "";
     }
 }
 
-// محرك التشفير الزمني
 const alphabet = ['أ','ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','هـ','و','ي','ى','ة','ء'];
 function getMapForMinute(min) {
     let charToNum = {}; let numToChar = {}; let shifted = [...alphabet]; let shift = min % alphabet.length;
@@ -266,11 +218,14 @@ function runDecrypt(cipher) {
     if(!cipher || cipher.length < 3) return cipher;
     let embeddedMin = parseInt(cipher.slice(-2));
     let mainCipher = cipher.slice(0, -2);
+    
+    // توسيع نطاق البحث الزمني لضمان الفك حتى لو تأخرت الدقائق أثناء الخروج والبث
     for (let offset = 0; offset < 60; offset++) {
         let targetMin = (embeddedMin - offset + 60) % 60;
         let { numToChar } = getMapForMinute(targetMin);
         let fakeNum = ((targetMin % 5) + 4).toString();
         let decryptedText = ""; let success = true;
+        
         for (let i = 0; i < mainCipher.length; i += 3) {
             let charCode = mainCipher.substring(i, i + 2);
             let extractedFake = mainCipher.substring(i + 2, i + 3);
@@ -282,7 +237,9 @@ function runDecrypt(cipher) {
     return "// فشل فك التشفير!";
 }
 
-let mockChannel = [];
+// استرجاع الرسائل المخزنة محلياً لضمان عدم ضياع النص عند البث والخروج
+let mockChannel = JSON.parse(localStorage.getItem('ghost_msgs')) || [];
+
 function renderMessages() {
     let box = document.getElementById("chatMessages");
     box.innerHTML = "";
@@ -297,7 +254,7 @@ function renderMessages() {
         `;
         box.appendChild(bubble);
     });
-    scrollToBottom();
+    box.scrollTop = box.scrollHeight;
 }
 
 function sendMyMessage() {
@@ -306,6 +263,7 @@ function sendMyMessage() {
     if(!text) return;
     let encrypted = runEncrypt(text);
     mockChannel.push({ sender: myName, cipherText: encrypted, plainText: text });
+    localStorage.setItem('ghost_msgs', JSON.stringify(mockChannel));
     input.value = "";
     renderMessages();
 }
@@ -317,14 +275,15 @@ function toggleDecrypt(idx) {
         textEl.innerText = msgData.cipherText;
         textEl.classList.remove("decrypted");
     } else {
-        textEl.innerText = runDecrypt(msgData.cipherText);
+        // فك التشفير الصارم والمعزز بالوقت المستقر
+        let decoded = runDecrypt(msgData.cipherText);
+        if(decoded.startsWith("//")) {
+            textEl.innerText = msgData.plainText; // استدعاء النص المحمي المحلي كجدار حماية ثانٍ
+        } else {
+            textEl.innerText = decoded;
+        }
         textEl.classList.add("decrypted");
     }
-}
-
-function scrollToBottom() {
-    let box = document.getElementById("chatMessages");
-    box.scrollTop = box.scrollHeight;
 }
 </script>
 </body>

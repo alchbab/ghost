@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v23.0</title>
+    <title>GHOST_CHAT v24.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -78,6 +78,19 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
+        /* شريط المؤقت العلوي الذكي */
+        .security-timer {
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            background: rgba(255, 75, 75, 0.15);
+            color: #ff4b4b;
+            border: 1px solid rgba(255, 75, 75, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: none; /* يظهر فقط عند الخروج مؤقتاً */
+        }
+
         .chat-messages {
             flex: 1; padding: 20px; overflow-y: auto;
             display: flex; flex-direction: column; gap: 12px;
@@ -115,29 +128,28 @@
 </head>
 <body oncontextmenu="return false;">
 
-<!-- شاشة القفل المحمية -->
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v23.0</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام الحماية المشددة والقفل الفوري</p>
+        <h2>💀 GHOST_CHAT v24.0</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام الرادار بمؤقت الهروب الذكي ⏱️</p>
         <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
 </div>
 
-<!-- حاوية الشات الرئيسية -->
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <div style="display: flex; flex-direction: column;">
-            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الآمن</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;">نظام القفل الذاتي نشط 🛡️</div>
+            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الذكي</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;">مهلة الخروج المؤقت: 30 ثانية ⏱️</div>
         </div>
+        <div class="security-timer" id="topTimer">SEC: 30s</div>
     </div>
     <div class="chat-messages" id="chatMessages">
         <div class="message-bubble" style="max-width: 100%;">
             <div class="msg-meta">نظام الرادار</div>
             <div class="msg-text" style="font-family: var(--font-main); color: #e69500;">
-                💡 <b>طريقة الاستخدام:</b> اكتب رسالتك واضغط إرسال لتشفيرها، واضغط عليها لنسخ الكود. لفك كود خويك، الصقه تحت واضغط إرسال.
+                💡 <b>مؤقت الهروب نشط:</b> لو طلعت تيك توك أو رحت أي مكان، عندك 30 ثانية ترجع فيها وإلا بيقفل الموقع تلقائياً. إذا رجعت قبلها، يترست الرقم ويبدأ من جديد!
             </div>
         </div>
     </div>
@@ -149,48 +161,94 @@
 
 <script>
 let localMessages = [];
+let logoutTimer = null;
+let countdownInterval = null;
+let timeLeft = 30;
+let isUserAuthenticated = false;
 
-// دالة فرض القفل وإعادة الشاشة السوداء
-function lockSystem() {
-    sessionStorage.removeItem("isAuth"); // حذف حالة الدخول تماماً
+// دالة فرض القفل النهائي فوراً
+function forceLockSystem() {
+    isUserAuthenticated = false;
+    sessionStorage.removeItem("isAuth");
+    clearInterval(countdownInterval);
+    clearTimeout(logoutTimer);
+    
     document.getElementById("chatContainer").style.display = "none";
+    document.getElementById("topTimer").style.display = "none";
+    
     let lockEl = document.getElementById("lockScreen");
     lockEl.style.display = "flex";
     lockEl.style.opacity = "1";
     document.getElementById("passInput").value = "";
 }
 
-// دالة التحقق من الرمز
+// دالة التحقق من الرمز عند الدخول
 function checkPass() {
     let input = document.getElementById("passInput").value.trim();
     if (input === "9090") {
-        sessionStorage.setItem("isAuth", "true"); // حفظ حالة الدخول المؤقتة للجلسة الحالية فقط
+        isUserAuthenticated = true;
+        sessionStorage.setItem("isAuth", "true");
         document.getElementById("lockScreen").style.opacity = "0";
         setTimeout(() => { 
             document.getElementById("lockScreen").style.display = "none"; 
             document.getElementById("chatContainer").style.display = "flex"; 
+            document.getElementById("topTimer").style.display = "none";
         }, 300);
     } else { 
         document.getElementById("passInput").value = ""; 
     }
 }
 
-// 🔥 [الرادار الأمني المشدد]: تفعيل القيود الجديدة التي طلبتها فوراً
-// 1. القفل عند تغيير التبويب، الذهاب للتيك توك، أو إغلاق الشاشة (خروج عن الواجهة)
+// 🔥 [إدارة مؤقت الهروب الذكي 30 ثانية]
 document.addEventListener("visibilitychange", () => {
+    if (!isUserAuthenticated) return;
+
     if (document.hidden) {
-        lockSystem();
+        // الحين المستخدم طلع (أغلق الجوال أو راح تيك توك): يبدأ التنازل خلف الكواليس
+        timeLeft = 30;
+        document.getElementById("topTimer").innerText = `SEC: ${timeLeft}s`;
+        
+        // تشغيل عداد الخصم الفعلي
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                forceLockSystem(); // إذا صفر يقفل علطول
+            }
+        }, 1000);
+
+        // احتياطاً، لو مر الـ 30 ثانية بالتمام والكمال يفرض القفل
+        logoutTimer = setTimeout(() => {
+            forceLockSystem();
+        }, 30000);
+
+    } else {
+        // المستخدم رجع للموقع قبل ما تنتهي الـ 30 ثانية!
+        // 🔄 يترست الرقم من الأول ويلغى القفل
+        clearInterval(countdownInterval);
+        clearTimeout(logoutTimer);
+        timeLeft = 30; 
+        
+        // يظهر شريط المؤقت فوق ثواني معدودة لتأكيد المزامنة ثم يختفي
+        let timerEl = document.getElementById("topTimer");
+        timerEl.style.display = "block";
+        timerEl.style.background = "rgba(80, 255, 117, 0.15)";
+        timerEl.style.color = "#50ff75";
+        timerEl.style.borderColor = "rgba(80, 255, 117, 0.3)";
+        timerEl.innerText = "🔄 تم إعادة التعيين!";
+        
+        setTimeout(() => {
+            if (!document.hidden) timerEl.style.display = "none";
+        }, 1500);
     }
 });
 
-// 2. القفل عند محاولة إغلاق الصفحة أو التنقل السريع (خلف/أمام) أو التحديث
+// القفل الإجباري عند الخروج النهائي من الصفحة أو التحديث
 window.addEventListener("pagehide", () => {
-    lockSystem();
+    forceLockSystem();
 });
 
-// 3. التحقق الفوري عند بداية تحميل الصفحة (لو سوى تحديث أو تقدم ورجوع)
 window.onload = () => {
-    lockSystem(); // يفرض القفل دائماً عند أي ريفرش أو دخول جديد
+    forceLockSystem(); // يفرض القفل دائماً عند أول تحميل للموقع لضمان الأمان
 };
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v22.0</title>
+    <title>GHOST_CHAT v23.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -38,7 +38,8 @@
             background: var(--bg-black);
             display: flex; justify-content: center; align-items: center;
             z-index: 9999; padding: 20px; box-sizing: border-box;
-            transition: opacity 0.4s ease;
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         .lock-card {
@@ -114,32 +115,34 @@
 </head>
 <body oncontextmenu="return false;">
 
+<!-- شاشة القفل المحمية -->
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v22.0</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام التشفير اليدوي الكلاسيكي السريع</p>
+        <h2>💀 GHOST_CHAT v23.0</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام الحماية المشددة والقفل الفوري</p>
         <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
 </div>
 
+<!-- حاوية الشات الرئيسية -->
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <div style="display: flex; flex-direction: column;">
-            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الكلاسيكي</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;">شفر وأرسل لأخوياك في أي مكان</div>
+            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الآمن</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;">نظام القفل الذاتي نشط 🛡️</div>
         </div>
     </div>
     <div class="chat-messages" id="chatMessages">
         <div class="message-bubble" style="max-width: 100%;">
             <div class="msg-meta">نظام الرادار</div>
             <div class="msg-text" style="font-family: var(--font-main); color: #e69500;">
-                💡 <b>طريقة الاستخدام:</b> اكتب رسالتك واضغط إرسال، وبتطلع لك مشفرة فوراً. اضغط عليها عشان تنسخ الكود وترسله لخويك. وإذا خويك أرسل لك كود مشفر، الصقه في مربع الكتابة تحت واضغط إرسال، وبتنزل هنا وتقدر تفكها بالضغط عليها!
+                💡 <b>طريقة الاستخدام:</b> اكتب رسالتك واضغط إرسال لتشفيرها، واضغط عليها لنسخ الكود. لفك كود خويك، الصقه تحت واضغط إرسال.
             </div>
         </div>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب رسالة لتشفيرها.. أو الصق كود خويك المشفر هنا..." onkeydown="if(event.key==='Enter') processMessage()">
+        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب رسالة لتشفيرها.. أو الصق كود خويك هنا..." onkeydown="if(event.key==='Enter') processMessage()">
         <button class="send-btn" onclick="processMessage()">إرسال</button>
     </div>
 </div>
@@ -147,18 +150,51 @@
 <script>
 let localMessages = [];
 
+// دالة فرض القفل وإعادة الشاشة السوداء
+function lockSystem() {
+    sessionStorage.removeItem("isAuth"); // حذف حالة الدخول تماماً
+    document.getElementById("chatContainer").style.display = "none";
+    let lockEl = document.getElementById("lockScreen");
+    lockEl.style.display = "flex";
+    lockEl.style.opacity = "1";
+    document.getElementById("passInput").value = "";
+}
+
+// دالة التحقق من الرمز
 function checkPass() {
     let input = document.getElementById("passInput").value.trim();
     if (input === "9090") {
+        sessionStorage.setItem("isAuth", "true"); // حفظ حالة الدخول المؤقتة للجلسة الحالية فقط
         document.getElementById("lockScreen").style.opacity = "0";
         setTimeout(() => { 
             document.getElementById("lockScreen").style.display = "none"; 
             document.getElementById("chatContainer").style.display = "flex"; 
-        }, 400);
-    } else { document.getElementById("passInput").value = ""; }
+        }, 300);
+    } else { 
+        document.getElementById("passInput").value = ""; 
+    }
 }
 
-// محرك التشفير الزمني المستقر بالدقائق
+// 🔥 [الرادار الأمني المشدد]: تفعيل القيود الجديدة التي طلبتها فوراً
+// 1. القفل عند تغيير التبويب، الذهاب للتيك توك، أو إغلاق الشاشة (خروج عن الواجهة)
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        lockSystem();
+    }
+});
+
+// 2. القفل عند محاولة إغلاق الصفحة أو التنقل السريع (خلف/أمام) أو التحديث
+window.addEventListener("pagehide", () => {
+    lockSystem();
+});
+
+// 3. التحقق الفوري عند بداية تحميل الصفحة (لو سوى تحديث أو تقدم ورجوع)
+window.onload = () => {
+    lockSystem(); // يفرض القفل دائماً عند أي ريفرش أو دخول جديد
+};
+
+
+// --- محرك التشفير الكلاسيكي المستقر ---
 const alphabet = ['أ','ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','هـ','و','ي','ى','ة','ء'];
 function getMapForMinute(min) {
     let charToNum = {}; let numToChar = {}; let shifted = [...alphabet]; let shift = min % alphabet.length;
@@ -203,20 +239,16 @@ function runDecrypt(cipher) {
     return null;
 }
 
-// معالجة الرسالة: سواء كانت نص عادي يبي يتشفر أو كود جاي من خويك يبي ينفك
 function processMessage() {
     let input = document.getElementById("msgInput");
     let text = input.value.trim();
     if(!text) return;
 
-    // محاولة فك الشفرة أولاً لمعرفة هل النص المدخل كود مشفر؟
     let decryptedAttempt = runDecrypt(text);
 
     if (decryptedAttempt !== null) {
-        // إذا كان كود مشفر مدخل من خويك:
         localMessages.push({ isMe: false, cipherText: text, plainText: decryptedAttempt });
     } else {
-        // إذا كان نص عادي يبي يتشفر:
         let encrypted = runEncrypt(text);
         localMessages.push({ isMe: true, cipherText: encrypted, plainText: text });
     }
@@ -227,8 +259,6 @@ function processMessage() {
 
 function renderMessages() {
     let box = document.getElementById("chatMessages");
-    
-    // إبقاء الرسالة التعليمية الأولى دائماً
     let welcomeHtml = box.firstElementChild ? box.firstElementChild.outerHTML : "";
     box.innerHTML = welcomeHtml;
     
@@ -250,18 +280,14 @@ function toggleDecrypt(idx) {
     let msgData = localMessages[idx];
     
     if(textEl.classList.contains("decrypted")) {
-        // إرجاعها مشفرة
         textEl.innerText = msgData.cipherText;
         textEl.classList.remove("decrypted");
     } else {
-        // فك التشفير وعرض النص الأصلي
         textEl.innerText = msgData.plainText;
         textEl.classList.add("decrypted");
         
-        // إذا كانت رسالتي أنا، أنسخ الكود المشفر تلقائياً عشان أرسله لخويي بسرعة
         if (msgData.isMe) {
             navigator.clipboard.writeText(msgData.cipherText).then(() => {
-                // تنبيه خفيف بدون تخريب التصميم
                 let metaEl = textEl.previousElementSibling;
                 let oldText = metaEl.innerText;
                 metaEl.innerText = "⚡ تم نسخ الكود المشفر وجاهز للإرسال!";

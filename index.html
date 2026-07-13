@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v21.0</title>
+    <title>GHOST_CHAT v22.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -75,23 +75,7 @@
         .chat-header {
             padding: 15px 25px; border-bottom: 1px solid var(--border-white-dim);
             display: flex; justify-content: space-between; align-items: center;
-            gap: 10px;
         }
-
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-
-        .call-btn {
-            background: #5865F2; color: #ffffff; border: none;
-            padding: 8px 14px; border-radius: 10px; font-weight: 700;
-            font-size: 0.8rem; cursor: pointer; transition: 0.2s;
-        }
-
-        .bypass-btn {
-            background: #e69500; color: #ffffff; border: none;
-            padding: 8px 14px; border-radius: 10px; font-weight: 700;
-            font-size: 0.8rem; cursor: pointer; transition: 0.2s;
-        }
-        .bypass-btn.active { background: #28a745; }
 
         .chat-messages {
             flex: 1; padding: 20px; overflow-y: auto;
@@ -99,7 +83,7 @@
         }
 
         .message-bubble {
-            max-width: 75%; padding: 12px 16px;
+            max-width: 85%; padding: 12px 16px;
             border-radius: 16px; background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-white-dim);
             align-self: flex-start; cursor: pointer; transition: 0.2s;
@@ -111,7 +95,7 @@
         }
 
         .msg-meta { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
-        .msg-text { font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; }
+        .msg-text { font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; user-select: text; -webkit-user-select: text; }
         .msg-text.decrypted { font-family: var(--font-main); font-size: 1.1rem; color: #50ff75; font-weight: bold; }
 
         .chat-input-area {
@@ -126,25 +110,14 @@
         }
 
         .send-btn { padding: 0 25px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
-
-        .hard-blackout {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000 !important; z-index: 200000 !important;
-            display: none; justify-content: center; align-items: center;
-            color: #fff; font-weight: bold; font-size: 1.2rem; text-align: center;
-        }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div class="hard-blackout" id="screenBlackout">
-    <div>💀 [نظام الأمان: الشاشة سوداء لحماية البيانات]</div>
-</div>
-
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v21.0</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام الرادار السحابي المستدام والمشفر</p>
+        <h2>💀 GHOST_CHAT v22.0</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام التشفير اليدوي الكلاسيكي السريع</p>
         <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
@@ -153,80 +126,26 @@
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <div style="display: flex; flex-direction: column;">
-            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح المستدام</div>
-            <div id="userBadge" style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;"></div>
-        </div>
-        <div class="header-actions">
-            <button class="bypass-btn" id="bypassBtn" onclick="triggerBypassAuth()">🔓 سماح مؤقت</button>
-            <button class="call-btn" onclick="sendDiscordAlert()">📢 استدعاء</button>
+            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الكلاسيكي</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;">شفر وأرسل لأخوياك في أي مكان</div>
         </div>
     </div>
-    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="message-bubble" style="max-width: 100%;">
+            <div class="msg-meta">نظام الرادار</div>
+            <div class="msg-text" style="font-family: var(--font-main); color: #e69500;">
+                💡 <b>طريقة الاستخدام:</b> اكتب رسالتك واضغط إرسال، وبتطلع لك مشفرة فوراً. اضغط عليها عشان تنسخ الكود وترسله لخويك. وإذا خويك أرسل لك كود مشفر، الصقه في مربع الكتابة تحت واضغط إرسال، وبتنزل هنا وتقدر تفكها بالضغط عليها!
+            </div>
+        </div>
+    </div>
     <div class="chat-input-area">
-        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب سالفتك هنا..." onkeydown="if(event.key==='Enter') sendMyMessage()">
-        <button class="send-btn" onclick="sendMyMessage()">إرسال</button>
+        <input type="text" id="msgInput" class="chat-input" placeholder="اكتب رسالة لتشفيرها.. أو الصق كود خويك المشفر هنا..." onkeydown="if(event.key==='Enter') processMessage()">
+        <button class="send-btn" onclick="processMessage()">إرسال</button>
     </div>
 </div>
 
 <script>
-let myName = "شبح_" + Math.floor(1000 + Math.random() * 9000);
-document.getElementById("userBadge").innerText = "معرّفك: " + myName;
-
-const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1526230208275812495/BrfyNrf2H7yXfIPZWTlKoGSNRYQTIzcvFzlnu9t37oJ5FI3zkLfAgrKaH7fjxSjiPtdb";
-// قاعدة بيانات مشفرة وسحابية بديلة مخصصة لحفظ واسترجاع الرسائل مشفرة 100% عند الخروج والدخول
-const CLOUD_STORAGE_URL = 'https://api.jsonbin.io/v3/b/66928e7be41b4d34e4113db1';
-const CLOUD_KEY = '$2a$10$W2H6qj.q0pMUG2pGfP8vUeX5v8gM4zQ5/4N3aUnxK1W7tV/60vVum';
-
-let screenshotAttempts = 0;
-let isBypassActive = false;
-let bypassTimeout = null;
-let bypassInterval = null;
-let mockChannel = [];
-
-function handleVisibilityProtection(action) {
-    if (isBypassActive) { blackoutElement.style.display = "none"; return; }
-    if (action === 'hide') { blackoutElement.style.display = "flex"; } else { blackoutElement.style.display = "none"; }
-}
-
-window.addEventListener('blur', () => { handleVisibilityProtection('hide'); });
-window.addEventListener('focus', () => { handleVisibilityProtection('show'); });
-
-function triggerBypassAuth() {
-    if (isBypassActive) { alert("🔓 نظام السماح المؤقت نشط حالياً بالفعل!"); return; }
-    let code = prompt("🔒 أدخل كود التحقق الخاص لتعليق الحماية (دقيقتين):");
-    if (code === "7070") { activateBypassMode(); } else if (code !== null) { alert("❌ كود خاطئ!"); }
-}
-
-function activateBypassMode() {
-    isBypassActive = true;
-    blackoutElement.style.display = "none";
-    let timeLeft = 120;
-    bypassBtnElement.classList.add("active");
-    bypassBtnElement.innerText = `⏱️ ${formatTime(timeLeft)}`;
-
-    bypassInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-            clearInterval(bypassInterval);
-            bypassBtnElement.classList.remove("active");
-            bypassBtnElement.innerText = "🔓 سماح مؤقت";
-        } else { bypassBtnElement.innerText = `⏱️ ${formatTime(timeLeft)}`; }
-    }, 1000);
-
-    bypassTimeout = setTimeout(() => {
-        isBypassActive = false;
-        clearInterval(bypassInterval);
-        bypassBtnElement.classList.remove("active");
-        bypassBtnElement.innerText = "🔓 سماح مؤقت";
-        alert("🚨 انتهت مهلة الدقيقتين!");
-        if (!document.hasFocus()) { blackoutElement.style.display = "flex"; }
-    }, 120000);
-}
-
-function formatTime(seconds) {
-    let mins = Math.floor(seconds / 60); let secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
+let localMessages = [];
 
 function checkPass() {
     let input = document.getElementById("passInput").value.trim();
@@ -235,12 +154,11 @@ function checkPass() {
         setTimeout(() => { 
             document.getElementById("lockScreen").style.display = "none"; 
             document.getElementById("chatContainer").style.display = "flex"; 
-            loadOnlineMessages(); 
         }, 400);
     } else { document.getElementById("passInput").value = ""; }
 }
 
-// محرك التشفير الزمني
+// محرك التشفير الزمني المستقر بالدقائق
 const alphabet = ['أ','ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','هـ','و','ي','ى','ة','ء'];
 function getMapForMinute(min) {
     let charToNum = {}; let numToChar = {}; let shifted = [...alphabet]; let shift = min % alphabet.length;
@@ -263,9 +181,10 @@ function runEncrypt(text) {
 }
 
 function runDecrypt(cipher) {
-    if(!cipher || cipher.length < 3) return cipher;
+    if(!cipher || cipher.length < 3) return null;
     let embeddedMin = parseInt(cipher.slice(-2));
     let mainCipher = cipher.slice(0, -2);
+    if (isNaN(embeddedMin)) return null;
     
     for (let offset = 0; offset < 60; offset++) {
         let targetMin = (embeddedMin - offset + 60) % 60;
@@ -281,105 +200,77 @@ function runDecrypt(cipher) {
         }
         if (success) return decryptedText;
     }
-    return "// فشل فك التشفير!";
+    return null;
 }
 
-// 🌐 دالة سحب واسترجاع الرسائل السحابية المحفوظة (تبقى مشفرة حتى تضغط عليها)
-async function loadOnlineMessages() {
-    try {
-        let res = await fetch(`${CLOUD_STORAGE_URL}/latest`, {
-            headers: { 'X-Master-Key': CLOUD_KEY }
-        });
-        if(res.ok) {
-            let data = await res.json();
-            mockChannel = data.record.messages || [];
-            renderMessages();
-        }
-    } catch (e) { console.error("خطأ قراءة السحابة"); }
+// معالجة الرسالة: سواء كانت نص عادي يبي يتشفر أو كود جاي من خويك يبي ينفك
+function processMessage() {
+    let input = document.getElementById("msgInput");
+    let text = input.value.trim();
+    if(!text) return;
+
+    // محاولة فك الشفرة أولاً لمعرفة هل النص المدخل كود مشفر؟
+    let decryptedAttempt = runDecrypt(text);
+
+    if (decryptedAttempt !== null) {
+        // إذا كان كود مشفر مدخل من خويك:
+        localMessages.push({ isMe: false, cipherText: text, plainText: decryptedAttempt });
+    } else {
+        // إذا كان نص عادي يبي يتشفر:
+        let encrypted = runEncrypt(text);
+        localMessages.push({ isMe: true, cipherText: encrypted, plainText: text });
+    }
+
+    input.value = "";
+    renderMessages();
 }
 
 function renderMessages() {
     let box = document.getElementById("chatMessages");
-    let shouldScroll = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
     
-    box.innerHTML = "";
-    mockChannel.forEach((msg, idx) => {
-        let isMe = msg.sender === myName;
+    // إبقاء الرسالة التعليمية الأولى دائماً
+    let welcomeHtml = box.firstElementChild ? box.firstElementChild.outerHTML : "";
+    box.innerHTML = welcomeHtml;
+    
+    localMessages.forEach((msg, idx) => {
         let bubble = document.createElement("div");
-        bubble.className = `message-bubble ${isMe ? 'me' : ''}`;
+        bubble.className = `message-bubble ${msg.isMe ? 'me' : ''}`;
         bubble.onclick = () => toggleDecrypt(idx);
         bubble.innerHTML = `
-            <div class="msg-meta">${msg.sender} (اضغط لفك التشفير)</div>
+            <div class="msg-meta">${msg.isMe ? 'أنت (اضغط للنسخ/الفك)' : 'خويك (اضغط للفك)'}</div>
             <div class="msg-text" id="msg-text-${idx}">${msg.cipherText}</div>
         `;
         box.appendChild(bubble);
     });
-    if(shouldScroll) box.scrollTop = box.scrollHeight;
-}
-
-// 🌐 دالة إرسال الرسالة: تشفرها، وترسلها للديسكورد، وتحفظها أونلاين بشكل دائم داتا مشفرة
-async function sendMyMessage() {
-    let input = document.getElementById("msgInput");
-    let text = input.value.trim();
-    if(!text) return;
-    
-    let encrypted = runEncrypt(text);
-    
-    // إضافة الرسالة وهي مشفرة للمصفوفة
-    mockChannel.push({ sender: myName, cipherText: encrypted, plainText: text });
-    if(mockChannel.length > 45) mockChannel.shift(); // تنظيف السجل القديم لحفظ المساحة
-    
-    renderMessages();
-    input.value = "";
-
-    // 1. إرسال الرسالة مشفرة إلى ديسكورد عبر الويب هوك (بدون أي منشن)
-    const discordPayload = {
-        "embeds": [{
-            "title": `💬 رسالة جديدة من ${myName}`,
-            "description": `**المحتوى المشفر داخل الرادار:**\n\`\`\`\n${encrypted}\n\`\`\``,
-            "color": 15158332
-        }]
-    };
-    fetch(DISCORD_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(discordPayload) }).catch(err => {});
-
-    // 2. حفظ الداتا السحابية المشفرة عشان ترجع لو قفلنا فتحنا الموقع
-    try {
-        await fetch(CLOUD_STORAGE_URL, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-Master-Key': CLOUD_KEY },
-            body: JSON.stringify({ messages: mockChannel })
-        });
-    } catch(e) {}
+    box.scrollTop = box.scrollHeight;
 }
 
 function toggleDecrypt(idx) {
     let textEl = document.getElementById(`msg-text-${idx}`);
-    let msgData = mockChannel[idx];
+    let msgData = localMessages[idx];
+    
     if(textEl.classList.contains("decrypted")) {
+        // إرجاعها مشفرة
         textEl.innerText = msgData.cipherText;
         textEl.classList.remove("decrypted");
     } else {
-        let decoded = runDecrypt(msgData.cipherText);
-        textEl.innerText = decoded.startsWith("//") ? msgData.plainText : decoded;
+        // فك التشفير وعرض النص الأصلي
+        textEl.innerText = msgData.plainText;
         textEl.classList.add("decrypted");
+        
+        // إذا كانت رسالتي أنا، أنسخ الكود المشفر تلقائياً عشان أرسله لخويي بسرعة
+        if (msgData.isMe) {
+            navigator.clipboard.writeText(msgData.cipherText).then(() => {
+                // تنبيه خفيف بدون تخريب التصميم
+                let metaEl = textEl.previousElementSibling;
+                let oldText = metaEl.innerText;
+                metaEl.innerText = "⚡ تم نسخ الكود المشفر وجاهز للإرسال!";
+                metaEl.style.color = "#50ff75";
+                setTimeout(() => { metaEl.innerText = oldText; metaEl.style.color = ""; }, 2000);
+            });
+        }
     }
 }
-
-function sendDiscordAlert() {
-    const currentSiteURL = window.location.href;
-    const payload = {
-        "content": "@everyone 🚨 **تنبيه طارئ من الرادار** 🚨",
-        "embeds": [{
-            "title": "💀 نظام استدعاء الشبح الجماعي",
-            "description": `**فيه شخص يستدعيك الحين ويفزع لك خش الموقع سررييع!**\n\n👇 للاتصال الفوري والآمن اضغط تحت:\n[🔗 دخول الرادار الحقيقي](${currentSiteURL})`,
-            "color": 0, "footer": { "text": `تم الإرسال بواسطة: ${myName}` }
-        }]
-    };
-    fetch(DISCORD_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(err => {});
-}
-
-// تحديث وقراءة الداتا المشفرة أونلاين كل ثانية تلقائياً
-setInterval(loadOnlineMessages, 1200);
 </script>
 </body>
 </html>

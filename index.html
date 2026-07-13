@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CIPHER v11.0</title>
+    <title>GHOST_ENGINE v12.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-black: #040406;
-            --panel-bg: #0b0c10;
-            --neon-green: #39ff14;
+            --bg-black: #000000;
+            --panel-glass: rgba(255, 255, 255, 0.03);
+            --border-white: rgba(255, 255, 255, 0.8);
+            --border-white-dim: rgba(255, 255, 255, 0.15);
+            --text-pure: #ffffff;
             --font-main: 'Cairo', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
@@ -17,7 +19,7 @@
         body {
             font-family: var(--font-main);
             background-color: var(--bg-black);
-            color: #e1e1e6;
+            color: var(--text-pure);
             margin: 0;
             display: flex;
             justify-content: center;
@@ -25,40 +27,131 @@
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
 
+        /* واجهة طلب كلمة المرور */
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: 0.5s ease;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .lock-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--panel-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-white);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+        }
+
+        .lock-card h2 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pure);
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-white-dim);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.5rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            letter-spacing: 5px;
+            box-sizing: border-box;
+            margin: 25px 0;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .lock-input:focus {
+            border-color: var(--border-white);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .lock-btn {
+            width: 100%;
+            padding: 15px;
+            background: #ffffff;
+            border: none;
+            border-radius: 14px;
+            color: #000000;
+            font-family: var(--font-main);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .lock-btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.02);
+        }
+
+        .error-msg {
+            color: #ff3333;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* الحاوية الرئيسية للتطبيق */
         .container {
             width: 100%;
             max-width: 620px;
-            background: var(--panel-bg);
+            background: var(--panel-glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-radius: 24px;
-            border: 1px solid #161922;
+            border: 1px solid var(--border-white);
             padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            display: none; /* مخفي لين يكتب الباسورد */
         }
 
         h1 {
             font-weight: 700;
-            color: var(--neon-green);
+            color: var(--text-pure);
             text-align: center;
             margin-bottom: 5px;
-            text-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+            letter-spacing: 1px;
         }
 
         .subtitle {
             font-family: var(--font-mono);
-            color: #4a4e69;
+            color: rgba(255, 255, 255, 0.4);
             text-align: center;
             font-size: 0.8rem;
-            margin-bottom: 25px;
+            margin-bottom: 35px;
             letter-spacing: 1px;
         }
 
         textarea {
             width: 100%;
-            height: 120px;
-            background: #000000;
-            border: 1px solid #161922;
+            height: 130px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-white-dim);
             border-radius: 16px;
             padding: 18px;
             color: #fff;
@@ -66,24 +159,26 @@
             resize: none;
             box-sizing: border-box;
             font-family: var(--font-mono);
+            transition: 0.3s;
         }
 
         textarea:focus {
             outline: none;
-            border-color: var(--neon-green);
+            border-color: var(--border-white);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
         }
 
         .action-container {
             display: flex;
             gap: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
-        button {
+        button.app-btn {
             flex: 1;
-            padding: 15px;
-            background: #0e1017;
-            border: 1px solid #1e2230;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-white-dim);
             border-radius: 14px;
             color: #fff;
             font-family: var(--font-main);
@@ -94,61 +189,94 @@
         }
 
         button.btn-encrypt {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
+            border-color: var(--border-white);
+            background: #ffffff;
+            color: #000000;
         }
 
         button.btn-encrypt:hover {
-            background: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
         button.btn-decrypt:hover {
-            background: #fff;
-            color: #000;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-white);
         }
 
         .result-display {
             width: 100%;
-            min-height: 85px;
-            background: #000000;
-            border: 1px solid #161922;
+            min-height: 90px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-white-dim);
             border-radius: 16px;
             padding: 20px;
-            color: var(--neon-green);
+            color: #ffffff;
             font-size: 1.4rem;
             word-wrap: break-word;
             box-sizing: border-box;
             text-align: center;
             font-family: var(--font-mono);
             letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- شاشة القفل المحمية -->
+<div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+        <h2>💀 GHOST_ENGINE</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin: 0;">النظام مشفر بالكامل، أدخل رمز العبور</p>
+        <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
+        <button class="lock-btn" onclick="checkPass()">دخول النظام</button>
+        <div class="error-msg" id="errorMsg">رمز العبور غير صحيح! تيسر.</div>
+    </div>
+</div>
+
+<!-- حاوية التطبيق الرئيسية المعزولة -->
+<div class="container" id="appContainer">
     <h1>💀 GHOST_ENGINE</h1>
-    <div class="subtitle">تشفير متصل بالأرقام التمويهية // نظام زمني ذكي V11.0</div>
+    <div class="subtitle">نظام زمني زجاجي // حواف بيضاء ناصعة V12.0</div>
     
     <textarea id="inputField" placeholder="اكتب كلامك هنا أو الصق الأرقام المتصلة لفكها..."></textarea>
     
     <div class="action-container">
-        <button class="btn-encrypt" onclick="encryptGhost()">🔒 تشفير متصل ومموّه</button>
-        <button class="btn-decrypt" onclick="decryptGhost()">🔓 فك الشفرة الذكي</button>
+        <button class="app-btn btn-encrypt" onclick="encryptGhost()">🔒 تشفير متصل</button>
+        <button class="app-btn btn-decrypt" onclick="decryptGhost()">🔓 فك الشفرة</button>
     </div>
     
     <div class="result-display" id="outputDisplay">// في انتظار النبضة السرية...</div>
 </div>
 
 <script>
+// دالة التحقق من كلمة المرور 9090
+function checkPass() {
+    let input = document.getElementById("passInput").value;
+    let lockScreen = document.getElementById("lockScreen");
+    let appContainer = document.getElementById("appContainer");
+    let errorMsg = document.getElementById("errorMsg");
+
+    if (input === "9090") {
+        lockScreen.style.opacity = "0";
+        setTimeout(() => {
+            lockScreen.style.display = "none";
+            appContainer.style.display = "block";
+        }, 500);
+    } else {
+        errorMsg.style.display = "block";
+        document.getElementById("passInput").value = "";
+    }
+}
+
 const alphabet = [
     'أ', 'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 
     'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'هـ', 'و', 'ي', 'ى', 'ة', 'ء'
 ];
 
-// توليد الخريطة بناءً على الدقيقة
 function getMapForMinute(min) {
     let charToNum = {};
     let numToChar = {};
@@ -157,7 +285,6 @@ function getMapForMinute(min) {
     for(let i=0; i<shift; i++) shifted.push(shifted.shift());
 
     shifted.forEach((char, index) => {
-        // نضمن دائماً خانتين (01, 02... 33) عشان الأرقام تلصق ببعض بدون ما تضيع
         let code = (index + 1).toString().padStart(2, '0');
         charToNum[char] = code;
         numToChar[code] = char;
@@ -166,7 +293,7 @@ function getMapForMinute(min) {
     charToNum['هـ'] = charToNum['ه'];
     charToNum['ى'] = charToNum['ي'];
     charToNum['أ'] = charToNum['ا'];
-    charToNum[' '] = '00'; // المسافة بين الكلمات هي 00
+    charToNum[' '] = '00';
 
     return { charToNum, numToChar };
 }
@@ -178,19 +305,14 @@ function encryptGhost() {
 
     let currentMin = new Date().getMinutes();
     let { charToNum } = getMapForMinute(currentMin);
-    
-    // تحديد رقم تضييع ثابت لهذه الدقيقة (مثلاً رقم بين 4 و 8)
     let fakeNum = ((currentMin % 5) + 4).toString();
 
     let resultString = "";
     for (let char of input) {
         if (charToNum[char]) {
-            // نضع الحرف الأصلي المكون من خانتين وبعده رقم التمويه المشتت
             resultString += charToNum[char] + fakeNum;
         }
     }
-    
-    // ندمج رقم الدقيقة في نهاية النص كبصمة خفية للسيستم
     output.innerText = resultString + currentMin.toString().padStart(2, '0');
 }
 
@@ -199,11 +321,9 @@ function decryptGhost() {
     let output = document.getElementById("outputDisplay");
     if (!input) return;
 
-    // استخراج الدقيقة المدمجة بآخر خانتين
     let embeddedMin = parseInt(input.slice(-2));
     let mainCipher = input.slice(0, -2);
 
-    // نجرب الدقيقة المدمجة أولاً، وإذا لم تنجح نجرب نطاق آخر 60 دقيقة مضت (لفك أي شفرة قديمة!)
     for (let offset = 0; offset < 60; offset++) {
         let targetMin = (embeddedMin - offset + 60) % 60;
         let { numToChar } = getMapForMinute(targetMin);
@@ -212,7 +332,6 @@ function decryptGhost() {
         let decryptedText = "";
         let success = true;
 
-        // نقرأ النص ككتل: كل كتلة مكونة من 3 خانات (خانين للحرف + خانة للتمويه)
         for (let i = 0; i < mainCipher.length; i += 3) {
             let charCode = mainCipher.substring(i, i + 2);
             let extractedFake = mainCipher.substring(i + 2, i + 3);
@@ -229,8 +348,7 @@ function decryptGhost() {
             return;
         }
     }
-
-    output.innerText = "// خطأ: تعذر فك التشفير، الشفرة غير متطابقة!";
+    output.innerText = "// خطأ: الشفرة غير متطابقة!";
 }
 </script>
 

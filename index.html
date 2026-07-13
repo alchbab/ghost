@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v19.0</title>
+    <title>GHOST_CHAT v19.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* شاشة القفل المحمية */
         .lock-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -64,7 +63,6 @@
             cursor: pointer;
         }
 
-        /* واجهة الشات الرئيسية */
         .chat-container {
             width: 100%; max-width: 700px; height: 90vh;
             background: var(--panel-glass);
@@ -80,9 +78,7 @@
             gap: 10px;
         }
 
-        .header-actions {
-            display: flex; gap: 8px; align-items: center;
-        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
 
         .call-btn {
             background: #5865F2; color: #ffffff; border: none;
@@ -90,7 +86,6 @@
             font-size: 0.8rem; cursor: pointer; transition: 0.2s;
         }
 
-        /* زر السماح المؤقت بالبث والتصوير */
         .bypass-btn {
             background: #e69500; color: #ffffff; border: none;
             padding: 8px 14px; border-radius: 10px; font-weight: 700;
@@ -132,7 +127,6 @@
 
         .send-btn { padding: 0 25px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
 
-        /* شاشة الحجب السوداء المطلقة الحية */
         .hard-blackout {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000000 !important; z-index: 200000 !important;
@@ -149,8 +143,8 @@
 
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v19.0</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام رادار جماعي مشفر ومحمي تلقائياً</p>
+        <h2>💀 GHOST_CHAT v19.1</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام رادار جماعي فائق السرعة والمزامنة</p>
         <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
@@ -159,7 +153,7 @@
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <div style="display: flex; flex-direction: column;">
-            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الجماعي</div>
+            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الفوري</div>
             <div id="userBadge" style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;"></div>
         </div>
         <div class="header-actions">
@@ -179,104 +173,71 @@ let myName = "شبح_" + Math.floor(1000 + Math.random() * 9000);
 document.getElementById("userBadge").innerText = "معرّفك: " + myName;
 
 let screenshotAttempts = 0;
-let isBypassActive = false; // حالة تفعيل الاستثناء المؤقت لـ دقيقتين
+let isBypassActive = false;
 let bypassTimeout = null;
 let bypassInterval = null;
 
 const blackoutElement = document.getElementById("screenBlackout");
 const bypassBtnElement = document.getElementById("bypassBtn");
 
-// 🔒 دالة رصد وفك حماية الشير والتصوير الذكية
 function handleVisibilityProtection(action) {
-    if (isBypassActive) {
-        // لو ميزة الاستثناء دقيقتين شغالة، ما يسوي شاشة سوداء أبداً ويسمح لهم يشوفون
-        blackoutElement.style.display = "none";
-        return;
-    }
-    
-    if (action === 'hide') {
-        blackoutElement.style.display = "flex";
-    } else {
-        blackoutElement.style.display = "none";
-    }
+    if (isBypassActive) { blackoutElement.style.display = "none"; return; }
+    if (action === 'hide') { blackoutElement.style.display = "flex"; } else { blackoutElement.style.display = "none"; }
 }
 
-// رصد البث الفوري والتنقل بالديسكورد
 window.addEventListener('blur', () => { handleVisibilityProtection('hide'); });
 window.addEventListener('focus', () => { handleVisibilityProtection('show'); });
 
-// 🔒 نظام استدعاء كود التحقق لإعطاء دقيقتين سماح لأخوياك
 function triggerBypassAuth() {
-    if (isBypassActive) {
-        alert("🔓 نظام السماح المؤقت نشط حالياً بالفعل!");
-        return;
-    }
-
+    if (isBypassActive) { alert("🔓 نظام السماح المؤقت نشط حالياً بالفعل!"); return; }
     let code = prompt("🔒 أدخل كود التحقق الخاص لتعليق الحماية (دقيقتين):");
-    if (code === "7070") { // كود التحقق الخاص بك (تقدر تعدله لأي رقم تبيه)
-        activateBypassMode();
-    } else if (code !== null) {
-        alert("❌ كود خاطئ! تم رفض طلب السماح.");
-    }
+    if (code === "7070") { activateBypassMode(); } else if (code !== null) { alert("❌ كود خاطئ!"); }
 }
 
 function activateBypassMode() {
     isBypassActive = true;
-    blackoutElement.style.display = "none"; // إلغاء الشاشة السوداء فوراً
-    
-    let timeLeft = 120; // 120 ثانية = دقيقتين بالتمام
+    blackoutElement.style.display = "none";
+    let timeLeft = 120;
     bypassBtnElement.classList.add("active");
     bypassBtnElement.innerText = `⏱️ ${formatTime(timeLeft)}`;
 
-    // تحديث مؤقت العداد فوق كل ثانية
     bypassInterval = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
             clearInterval(bypassInterval);
             bypassBtnElement.classList.remove("active");
             bypassBtnElement.innerText = "🔓 سماح مؤقت";
-        } else {
-            bypassBtnElement.innerText = `⏱️ ${formatTime(timeLeft)}`;
-        }
+        } else { bypassBtnElement.innerText = `⏱️ ${formatTime(timeLeft)}`; }
     }, 1000);
 
-    // إنهاء مهلة السماح تلقائياً بعد دقيقتين وإعادة جدار الحماية غصب
     bypassTimeout = setTimeout(() => {
         isBypassActive = false;
         clearInterval(bypassInterval);
         bypassBtnElement.classList.remove("active");
         bypassBtnElement.innerText = "🔓 سماح مؤقت";
-        alert("🚨 انتهت مهلة الدقيقتين المسموحة! تم إعادة تفعيل نظام الحجب الأسود التلقائي للصدمات.");
-        // إذا كان طالع من الصفحة، يرجع يقفل أسود فوراً
+        alert("🚨 انتهت مهلة الدقيقتين!");
         if (!document.hasFocus()) { blackoutElement.style.display = "flex"; }
     }, 120000);
 }
 
 function formatTime(seconds) {
-    let mins = Math.floor(seconds / 60);
-    let secs = seconds % 60;
+    let mins = Math.floor(seconds / 60); let secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// 🔒 نظام رصد لقطات الشاشة
 window.addEventListener('keydown', function(e) {
     if (e.key === 'PrintScreen' || e.keyCode === 44 || (e.metaKey && e.shiftKey)) {
-        if (isBypassActive) return; // السماح بالتصوير لو المود مفعل
-        
+        if (isBypassActive) return;
         screenshotAttempts++;
         blackoutElement.style.display = "flex";
-        
         if (screenshotAttempts >= 3) {
-            alert("🚨 [نظام الأمان]: تم رصد محاولات تصوير متكررة! تم قفل النظام.");
-            screenshotAttempts = 0;
-            blackoutElement.style.display = "none";
+            alert("🚨 تم قفل النظام!");
+            screenshotAttempts = 0; blackoutElement.style.display = "none";
             document.getElementById("chatContainer").style.display = "none";
             document.getElementById("lockScreen").style.display = "flex";
             document.getElementById("lockScreen").style.opacity = "1";
             document.getElementById("passInput").value = "";
-        } else {
-            setTimeout(() => { if(!isBypassActive && !document.hasFocus()) blackoutElement.style.display = "none"; }, 1500);
-        }
+        } else { setTimeout(() => { if(!isBypassActive && !document.hasFocus()) blackoutElement.style.display = "none"; }, 1500); }
     }
 });
 
@@ -288,8 +249,7 @@ function sendDiscordAlert() {
         "embeds": [{
             "title": "💀 نظام استدعاء الشبح الجماعي",
             "description": `**فيه شخص يستدعيك الحين ويفزع لك خش الموقع سررييع!**\n\n👇 للاتصال الفوري والآمن اضغط تحت:\n[🔗 دخول الرادار الحقيقي](${currentSiteURL})`,
-            "color": 0,
-            "footer": { "text": `تم الإرسال بواسطة: ${myName}` }
+            "color": 0, "footer": { "text": `تم الإرسال بواسطة: ${myName}` }
         }]
     };
     fetch(webhookURL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(err => console.error(err));
@@ -302,14 +262,12 @@ function checkPass() {
         setTimeout(() => { 
             document.getElementById("lockScreen").style.display = "none"; 
             document.getElementById("chatContainer").style.display = "flex"; 
-            renderMessages(); 
+            loadLiveMessages(); 
         }, 400);
-    } else {
-        document.getElementById("passInput").value = "";
-    }
+    } else { document.getElementById("passInput").value = ""; }
 }
 
-// محرك التشفير الزمني المستقر
+// محرك التشفير الزمني
 const alphabet = ['أ','ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','هـ','و','ي','ى','ة','ء'];
 function getMapForMinute(min) {
     let charToNum = {}; let numToChar = {}; let shifted = [...alphabet]; let shift = min % alphabet.length;
@@ -406,7 +364,15 @@ function toggleDecrypt(idx) {
     }
 }
 
-setInterval(loadLiveMessages, 2000);
+// ⚡ 1. الاستماع الفوري واللحظي لأي تحديث من الحسابات أو الأجهزة الأخرى 
+window.addEventListener('storage', function(e) {
+    if (e.key === 'ghost_live_stream') {
+        loadLiveMessages();
+    }
+});
+
+// ⚡ 2. تسريع سحب التحديث الخامل إلى نصف ثانية لضمان الاستجابة السريعة
+setInterval(loadLiveMessages, 500);
 window.onload = loadLiveMessages;
 </script>
 </body>

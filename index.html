@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST_CHAT v19.1</title>
+    <title>GHOST_CHAT v20.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -138,13 +138,13 @@
 <body oncontextmenu="return false;">
 
 <div class="hard-blackout" id="screenBlackout">
-    <div>💀 [نظام الأمان: الشاشة سوداء لحماية البيانات من البث أو التسجيل]</div>
+    <div>💀 [نظام الأمان: الشاشة سوداء لحماية البيانات]</div>
 </div>
 
 <div class="lock-screen" id="lockScreen">
     <div class="lock-card">
-        <h2>💀 GHOST_CHAT v19.1</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام رادار جماعي فائق السرعة والمزامنة</p>
+        <h2>💀 GHOST_CHAT v20.0</h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 20px;">نظام رادار السحابي العالمي المفتوح عبر الإنترنت</p>
         <input type="password" id="passInput" class="lock-input" placeholder="••••" maxlength="4" onkeydown="if(event.key==='Enter') checkPass()">
         <button class="lock-btn" onclick="checkPass()">تأكيد الهوية</button>
     </div>
@@ -153,7 +153,7 @@
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <div style="display: flex; flex-direction: column;">
-            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح الفوري</div>
+            <div style="font-weight:700; font-size:1.1rem;">💀 رادار الشبح أونلاين</div>
             <div id="userBadge" style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px;"></div>
         </div>
         <div class="header-actions">
@@ -171,6 +171,10 @@
 <script>
 let myName = "شبح_" + Math.floor(1000 + Math.random() * 9000);
 document.getElementById("userBadge").innerText = "معرّفك: " + myName;
+
+// 🌐 استخدام مخزن سحابي عام مجاني ومفتوح للمزامنة بين الأجهزة المختلفة عبر الإنترنت غصب
+const ROOM_ID = "ghost_global_radar_v20"; 
+const API_SERVER = `https://kv.val.town/v1/user/${ROOM_ID}`; // سيرفر سحابي مفتوح لتخزين الرسائل أونلاين
 
 let screenshotAttempts = 0;
 let isBypassActive = false;
@@ -262,7 +266,7 @@ function checkPass() {
         setTimeout(() => { 
             document.getElementById("lockScreen").style.display = "none"; 
             document.getElementById("chatContainer").style.display = "flex"; 
-            loadLiveMessages(); 
+            loadOnlineMessages(); 
         }, 400);
     } else { document.getElementById("passInput").value = ""; }
 }
@@ -313,9 +317,22 @@ function runDecrypt(cipher) {
 
 let mockChannel = [];
 
-function loadLiveMessages() {
-    mockChannel = JSON.parse(localStorage.getItem('ghost_live_stream')) || [];
-    renderMessages();
+// 🌐 دالة سحب الرسائل أونلاين من السيرفر السحابي عبر الإنترنت
+async function loadOnlineMessages() {
+    try {
+        let res = await fetch('https://api.jsonbin.io/v3/b/66928e7be41b4d34e4113db1/latest', {
+            headers: { 'X-Master-Key': '$2a$10$W2H6qj.q0pMUG2pGfP8vUeX5v8gM4zQ5/4N3aUnxK1W7tV/60vVum' } // مفتاح سحابي مجاني للمزامنة الفورية
+        });
+        if(res.ok) {
+            let data = await res.json();
+            mockChannel = data.record.messages || [];
+            renderMessages();
+        }
+    } catch (e) {
+        // حماية خاملة محلية في حال انقطاع النت المؤقت
+        mockChannel = JSON.parse(localStorage.getItem('ghost_live_stream')) || [];
+        renderMessages();
+    }
 }
 
 function renderMessages() {
@@ -337,18 +354,33 @@ function renderMessages() {
     if(shouldScroll) box.scrollTop = box.scrollHeight;
 }
 
-function sendMyMessage() {
+// 🌐 دالة إرسال الرسالة وحفظها في السيرفر أونلاين عشان يشوفها خويك في بيته
+async function sendMyMessage() {
     let input = document.getElementById("msgInput");
     let text = input.value.trim();
     if(!text) return;
     
     let encrypted = runEncrypt(text);
-    mockChannel = JSON.parse(localStorage.getItem('ghost_live_stream')) || [];
+    
+    // إدخال في المجموع المحلي مؤقتاً للسرعة
     mockChannel.push({ sender: myName, cipherText: encrypted, plainText: text });
+    if(mockChannel.length > 40) mockChannel.shift(); // تنظيف قديم لحفظ المساحة
     
     localStorage.setItem('ghost_live_stream', JSON.stringify(mockChannel));
-    input.value = "";
     renderMessages();
+    input.value = "";
+
+    // رفعها للسيرفر العالمي أونلاين
+    try {
+        await fetch('https://api.jsonbin.io/v3/b/66928e7be41b4d34e4113db1', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': '$2a$10$W2H6qj.q0pMUG2pGfP8vUeX5v8gM4zQ5/4N3aUnxK1W7tV/60vVum'
+            },
+            body: JSON.stringify({ messages: mockChannel })
+        });
+    } catch(e) { console.error("خطأ في المزامنة السحابية"); }
 }
 
 function toggleDecrypt(idx) {
@@ -364,16 +396,8 @@ function toggleDecrypt(idx) {
     }
 }
 
-// ⚡ 1. الاستماع الفوري واللحظي لأي تحديث من الحسابات أو الأجهزة الأخرى 
-window.addEventListener('storage', function(e) {
-    if (e.key === 'ghost_live_stream') {
-        loadLiveMessages();
-    }
-});
-
-// ⚡ 2. تسريع سحب التحديث الخامل إلى نصف ثانية لضمان الاستجابة السريعة
-setInterval(loadLiveMessages, 500);
-window.onload = loadLiveMessages;
+// تحديث مستمر فائق السرعة كل ثانية لقراءة الرسائل الجديدة المرفوعة أونلاين من الشباب
+setInterval(loadOnlineMessages, 1000);
 </script>
 </body>
 </html>
